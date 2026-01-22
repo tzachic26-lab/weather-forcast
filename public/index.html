@@ -331,6 +331,7 @@
       const langHeButton = document.getElementById("lang-he");
       const aboutContent = document.getElementById("about-content");
       const aboutSummary = document.getElementById("about-summary");
+      const aboutInfo = document.getElementById("about-info");
       const countrySearch = document.getElementById("country-search");
       const countryList = document.getElementById("country-list");
       const citySearch = document.getElementById("city-search");
@@ -361,6 +362,7 @@
       }
 
       let selectedLanguage = "en";
+      let aboutCloseTimer = null;
 
       async function getGeoDefaults() {
         if (!navigator.geolocation) {
@@ -675,6 +677,18 @@
         }
       }
 
+      function scheduleAboutAutoClose() {
+        if (!aboutInfo) {
+          return;
+        }
+        if (aboutCloseTimer) {
+          clearTimeout(aboutCloseTimer);
+        }
+        aboutCloseTimer = setTimeout(() => {
+          aboutInfo.removeAttribute("open");
+        }, 5000);
+      }
+
       function getCountryMatches(query) {
         const normalized = query.toLowerCase();
         return allCountries
@@ -818,6 +832,14 @@
       langHeButton.addEventListener("click", () => {
         switchLanguage("he");
       });
+
+      if (aboutInfo) {
+        aboutInfo.addEventListener("toggle", () => {
+          if (aboutInfo.hasAttribute("open")) {
+            scheduleAboutAutoClose();
+          }
+        });
+      }
 
       countrySearch.addEventListener("input", async (event) => {
         const query = event.target.value.trim();
