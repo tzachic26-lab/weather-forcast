@@ -308,6 +308,11 @@
         border: 1px solid var(--border);
         box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
         text-align: center;
+        transition: transform 0.15s ease, box-shadow 0.2s ease;
+      }
+      .forecast-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
       }
       .forecast-card.today {
         border-color: #1d4ed8;
@@ -341,6 +346,14 @@
         margin-top: 6px;
         font-size: 12px;
         color: var(--muted);
+      }
+      .forecast-rain {
+        margin-top: 4px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .forecast-card.today .forecast-rain {
+        color: rgba(255, 255, 255, 0.85);
       }
       .app-footer {
         margin-top: 30px;
@@ -1284,6 +1297,7 @@
           .map((date, index) => {
             const high = daily.temperature_2m_max?.[index];
             const low = daily.temperature_2m_min?.[index];
+            const precip = daily.precipitation_probability_max?.[index];
             const code = daily.weathercode?.[index];
             const isToday = index === 0;
             const tempValue = `${formatValue(low, "°C")} / ${formatValue(high, "°C")}`;
@@ -1294,6 +1308,11 @@
                 <div class="forecast-icon">${weatherIcon(code)}</div>
                 <div class="forecast-temp">${tempValue}</div>
                 <div class="forecast-desc">${translateWeatherCode(code)}</div>
+                <div class="forecast-rain">${
+                  selectedLanguage === "he"
+                    ? `${formatValue(precip, "%")} גשם`
+                    : `${formatValue(precip, "%")} rain`
+                }</div>
               </div>
             `;
           })
