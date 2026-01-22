@@ -7,15 +7,15 @@
     <style>
       :root {
         color-scheme: light;
-        --bg: #0ea5e9;
-        --bg-2: #6366f1;
-        --card: rgba(255, 255, 255, 0.86);
+        --bg: #f5f7fb;
+        --card: #ffffff;
         --text: #0f172a;
-        --muted: #475569;
-        --accent: #2563eb;
-        --accent-2: #f97316;
-        --border: rgba(148, 163, 184, 0.45);
-        --shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+        --muted: #64748b;
+        --accent: #f97316;
+        --accent-2: #2563eb;
+        --border: #e2e8f0;
+        --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        --hero: linear-gradient(135deg, #1187d8 0%, #0c6dbf 100%);
       }
       * {
         box-sizing: border-box;
@@ -25,160 +25,126 @@
         font-family: "Segoe UI", Arial, sans-serif;
         color: var(--text);
         min-height: 100vh;
-        background: radial-gradient(circle at top, #e0f2fe 0%, #f8fafc 35%, #f1f5f9 70%);
-        position: relative;
-        overflow-x: hidden;
+        background: var(--bg);
       }
-      body::before,
-      body::after {
-        content: "";
-        position: fixed;
-        inset: 0;
-        z-index: -1;
-      }
-      body::before {
-        background: linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 100%);
-        opacity: 0.9;
-      }
-      body::after {
-        background:
-          radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.75) 0 120px, transparent 140px),
-          radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.6) 0 140px, transparent 160px),
-          radial-gradient(circle at 70% 18%, rgba(255, 255, 255, 0.7) 0 120px, transparent 150px),
-          radial-gradient(circle at 82% 30%, rgba(255, 255, 255, 0.55) 0 140px, transparent 170px),
-          radial-gradient(circle at 20% 75%, rgba(255, 255, 255, 0.6) 0 140px, transparent 175px),
-          radial-gradient(circle at 75% 70%, rgba(255, 255, 255, 0.5) 0 160px, transparent 190px);
-        opacity: 0.7;
-      }
-      main {
-        max-width: 960px;
+      main.app {
+        max-width: 1120px;
         margin: 0 auto;
-        padding: 40px 20px 60px;
-        position: relative;
+        padding: 28px 20px 48px;
       }
-      .card {
-        background: var(--card);
-        border-radius: 20px;
-        padding: 56px 28px 28px;
-        box-shadow: var(--shadow);
-        border: 1px solid var(--border);
-        backdrop-filter: blur(14px);
+      .app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        background: #0ea5e9;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+      }
+      .brand-title {
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .brand-subtitle {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .header-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        justify-content: flex-end;
       }
       .lang-tabs {
-        position: absolute;
-        top: 8px;
-        right: 8px;
         display: inline-flex;
-        border: 1px solid var(--border);
-        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
         border-radius: 999px;
-        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
         overflow: hidden;
       }
       .lang-tabs button {
         border: none;
         background: transparent;
-        padding: 8px 14px;
+        padding: 6px 14px;
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
-        color: var(--muted);
+        color: #64748b;
         box-shadow: none;
       }
       #lang-he {
-        font-size: 15px;
+        font-size: 14px;
       }
       .lang-tabs button.active {
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
         color: white;
       }
-      .about {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-      }
-      .about summary {
-        list-style: none;
-        cursor: pointer;
+      .search-card {
+        background: var(--card);
+        border-radius: 18px;
+        padding: 16px 20px;
         border: 1px solid var(--border);
-        background: rgba(255, 255, 255, 0.85);
-        width: 32px;
-        height: 32px;
-        border-radius: 999px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
-        color: var(--muted);
-        font-weight: 700;
-      }
-      .about summary::-webkit-details-marker {
-        display: none;
-      }
-      .about-content {
-        margin-top: 8px;
-        padding: 10px 12px;
-        background: white;
-        border: 1px solid var(--border);
-        border-radius: 12px;
         box-shadow: var(--shadow);
-        font-size: 13px;
-        color: var(--muted);
-        max-width: 220px;
       }
-      h1 {
-        margin: 0 0 8px;
-        font-size: 30px;
-        font-weight: 700;
-      }
-      p.subtitle {
-        margin: 0 0 24px;
-        color: var(--muted);
-      }
-      form {
+      .search-form {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
-        gap: 12px;
-        align-items: end;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+        gap: 14px;
+        align-items: center;
       }
-      label {
+      .search-form .field:last-child {
+        display: flex;
+        justify-content: flex-end;
+      }
+      .field label {
         display: block;
-        font-size: 13px;
+        font-size: 12px;
         margin-bottom: 6px;
         color: var(--muted);
       }
-      input,
-      select {
+      input {
         width: 100%;
-        padding: 11px 12px;
-        font-size: 15px;
+        padding: 10px 12px;
+        font-size: 14px;
         border: 1px solid var(--border);
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
-      }
-      select {
-        appearance: none;
-        background-image: linear-gradient(45deg, transparent 50%, #64748b 50%),
-          linear-gradient(135deg, #64748b 50%, transparent 50%);
-        background-position: calc(100% - 18px) calc(50% + 2px),
-          calc(100% - 12px) calc(50% + 2px);
-        background-size: 6px 6px, 6px 6px;
-        background-repeat: no-repeat;
-        padding-right: 32px;
+        background: #f8fafc;
       }
       .dropdown {
         position: relative;
       }
       .dropdown input {
-        padding-right: 36px;
+        padding-right: 34px;
       }
       .dropdown .chevron {
         position: absolute;
         right: 12px;
-        top: 38px;
+        top: 33px;
         color: var(--muted);
         pointer-events: none;
+      }
+      body[dir="rtl"] .dropdown .chevron {
+        right: auto;
+        left: 12px;
       }
       .dropdown-list {
         position: absolute;
@@ -202,136 +168,377 @@
       }
       .dropdown-item:hover,
       .dropdown-item.active {
-        background: #eef2ff;
+        background: #eff6ff;
       }
       button {
-        padding: 12px 18px;
-        font-size: 15px;
+        padding: 10px 18px;
+        font-size: 14px;
         border: none;
         border-radius: 12px;
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        background: linear-gradient(135deg, #f97316, #f59e0b);
         color: white;
         cursor: pointer;
         transition: transform 0.05s ease, box-shadow 0.2s ease;
-        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35);
+        box-shadow: 0 10px 24px rgba(249, 115, 22, 0.28);
+        min-width: 140px;
+        height: 40px;
+      }
+      button.cta {
+        border-radius: 999px;
+        padding: 10px 22px;
+        box-shadow: 0 12px 26px rgba(249, 115, 22, 0.35);
       }
       button:active {
         transform: translateY(1px);
       }
-      #status {
-        margin-top: 16px;
-        font-size: 14px;
+      .status {
+        margin-top: 10px;
+        font-size: 13px;
         color: var(--muted);
       }
-      .table-wrap {
-        margin-top: 16px;
-        overflow-x: auto;
-        border-radius: 14px;
-        border: 1px solid var(--border);
-        background: white;
+      .hero-card {
+        margin-top: 22px;
+        background: var(--hero);
+        color: white;
+        border-radius: 22px;
+        padding: 24px 28px;
+        box-shadow: var(--shadow);
       }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 640px;
+      .hero-card.hidden {
+        display: none;
       }
-      th,
-      td {
-        padding: 10px 12px;
-        text-align: left;
-        border-bottom: 1px solid var(--border);
+      .hero-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+      .hero-city {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+      }
+      .hero-country {
+        margin: 4px 0;
         font-size: 14px;
+        opacity: 0.8;
       }
-      html[lang="he"] th,
-      html[lang="he"] td {
-        text-align: right;
-      }
-      th {
-        background: #f1f5ff;
-        color: var(--muted);
+      .hero-condition {
+        margin: 16px 0 0;
+        font-size: 14px;
         font-weight: 600;
       }
-      tr:last-child td {
-        border-bottom: none;
+      .hero-temp {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+      }
+      body[dir="rtl"] .hero-temp {
+        text-align: left;
+        align-items: flex-start;
+      }
+      .hero-icon {
+        font-size: 24px;
+      }
+      .hero-temp-value {
+        font-size: 52px;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .hero-temp-sub {
+        font-size: 13px;
+        opacity: 0.8;
+      }
+      .hero-stats {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .stat-card {
+        background: rgba(255, 255, 255, 0.16);
+        border-radius: 14px;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 12px;
+      }
+      .stat-card span {
+        opacity: 0.75;
+      }
+      .stat-card strong {
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .forecast-section {
+        margin-top: 26px;
+      }
+      .forecast-section.hidden {
+        display: none;
+      }
+      .section-header h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+      .section-header p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .forecast-grid {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 14px;
+      }
+      .forecast-card {
+        background: var(--card);
+        border-radius: 16px;
+        padding: 14px 12px;
+        border: 1px solid var(--border);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+        text-align: center;
+      }
+      .forecast-card.today {
+        border-color: #1d4ed8;
+        background: linear-gradient(180deg, #0ea5e9 0%, #2563eb 100%);
+        color: white;
+        box-shadow: 0 18px 36px rgba(37, 99, 235, 0.3);
+      }
+      .forecast-card.today .forecast-day,
+      .forecast-card.today .forecast-date,
+      .forecast-card.today .forecast-desc {
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .forecast-day {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .forecast-date {
+        font-size: 12px;
+        margin-top: 4px;
+        color: var(--muted);
+      }
+      .forecast-icon {
+        margin: 14px 0;
+        font-size: 22px;
+      }
+      .forecast-temp {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .forecast-desc {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .app-footer {
+        margin-top: 30px;
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        justify-content: center;
+        text-align: center;
+      }
+      .footer-card {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 18px 16px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        box-shadow: var(--shadow);
+        min-width: 240px;
+      }
+      .footer-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .footer-brand .brand-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+      }
+      .footer-meta {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .footer-links {
+        display: inline-flex;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      body[dir="rtl"] main.app {
+        direction: rtl;
+      }
+      body[dir="rtl"] .footer-links {
+        direction: rtl;
+      }
+      @media (max-width: 900px) {
+        .hero-stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .app-footer {
+          flex-direction: column;
+          gap: 6px;
+        }
       }
       @media (max-width: 720px) {
-        main {
-          padding: 24px 16px 40px;
+        main.app {
+          padding: 20px 16px 36px;
         }
-        form {
+        .app-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .search-form {
           grid-template-columns: 1fr;
-        }
-        .lang-toggle {
-          position: static;
-          margin-bottom: 12px;
         }
         button {
           width: 100%;
         }
-        table {
-          min-width: 560px;
+        .hero-main {
+          flex-direction: column;
+          align-items: flex-start;
         }
       }
     </style>
   </head>
   <body>
-    <main>
-      <div class="card">
-        <details class="about" id="about-info">
-          <summary id="about-summary" aria-label="About">ℹ️</summary>
-          <div class="about-content" id="about-content"></div>
-        </details>
-        <div class="lang-tabs" role="tablist" aria-label="Language">
-          <button id="lang-en" type="button" role="tab" aria-selected="true" class="active">
-            EN
-          </button>
-          <button id="lang-he" type="button" role="tab" aria-selected="false">
-            עב
-          </button>
+    <main class="app">
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-icon">🌦️</div>
+          <div class="brand-text">
+            <span class="brand-title" id="brand-title">Weather</span>
+            <span class="brand-subtitle" id="brand-subtitle">7-day forecast</span>
+          </div>
         </div>
-        <h1>Weekly Forecast</h1>
-        <p class="subtitle">Enter a city and country to get the 7-day outlook.</p>
-        <form id="forecast-form">
-          <div class="dropdown">
+        <div class="header-actions">
+          <div class="lang-tabs" role="tablist" aria-label="Language">
+            <button id="lang-en" type="button" role="tab" aria-selected="true" class="active">
+              EN
+            </button>
+            <button id="lang-he" type="button" role="tab" aria-selected="false">
+              עב
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <section class="search-card">
+        <form id="forecast-form" class="search-form">
+          <div class="field">
             <label for="country-search">Country</label>
-            <input
-              id="country-search"
-              placeholder="Type at least 2 letters"
-              required
-              autocomplete="off"
-            />
-            <span class="chevron">▾</span>
-            <div id="country-list" class="dropdown-list"></div>
+            <div class="dropdown">
+              <input
+                id="country-search"
+                placeholder="Type at least 2 letters"
+                required
+                autocomplete="off"
+              />
+              <span class="chevron">▾</span>
+              <div id="country-list" class="dropdown-list"></div>
+            </div>
           </div>
-          <div class="dropdown">
+          <div class="field">
             <label for="city-search">City</label>
-            <input
-              id="city-search"
-              placeholder="Select a country first"
-              disabled
-              autocomplete="off"
-            />
-            <span class="chevron">▾</span>
-            <div id="city-list" class="dropdown-list"></div>
+            <div class="dropdown">
+              <input
+                id="city-search"
+                placeholder="Select a country first"
+                disabled
+                autocomplete="off"
+              />
+              <span class="chevron">▾</span>
+              <div id="city-list" class="dropdown-list"></div>
+            </div>
           </div>
-          <div>
-            <button type="submit">Get Forecast</button>
+          <div class="field">
+            <button type="submit" class="cta">Get Forecast</button>
           </div>
         </form>
-        <div id="status"></div>
-        <div id="result"></div>
-      </div>
+        <div id="status" class="status"></div>
+      </section>
+
+      <section class="hero-card hidden" id="hero-card">
+        <div class="hero-main">
+          <div>
+            <h1 class="hero-city" id="hero-city">--</h1>
+            <p class="hero-country" id="hero-country">--</p>
+            <p class="hero-condition" id="hero-condition">--</p>
+          </div>
+          <div class="hero-temp">
+            <div class="hero-icon" id="hero-icon">⛅</div>
+            <div class="hero-temp-value" id="hero-temp">--</div>
+            <div class="hero-temp-sub" id="hero-temp-sub">--</div>
+          </div>
+        </div>
+        <div class="hero-stats" id="hero-stats"></div>
+      </section>
+
+      <section class="forecast-section hidden" id="forecast-section">
+        <div class="section-header">
+          <h2 id="forecast-title">7-Day Forecast</h2>
+          <p id="forecast-subtitle">Weather outlook for your location.</p>
+        </div>
+        <div id="result" class="forecast-grid"></div>
+      </section>
+
+      <footer class="app-footer" id="footer-note">
+        <div class="footer-card">
+          <div class="footer-brand">
+            <span class="brand-icon">🌦️</span>
+            <span id="footer-title">Weather Forecast</span>
+          </div>
+          <div class="footer-meta" id="footer-created">Created by Tzachi Cohen</div>
+          <div class="footer-meta" id="footer-rights">All Rights Reserved 2026</div>
+          <div class="footer-links">
+            <span id="footer-privacy">Privacy Policy</span>
+            <span>•</span>
+            <span id="footer-terms">Terms of Service</span>
+            <span>•</span>
+            <span id="footer-contact">Contact</span>
+          </div>
+        </div>
+      </footer>
+
     </main>
 
     <script>
       const form = document.getElementById("forecast-form");
       const statusEl = document.getElementById("status");
       const resultEl = document.getElementById("result");
+      const heroCard = document.getElementById("hero-card");
+      const heroCityEl = document.getElementById("hero-city");
+      const heroCountryEl = document.getElementById("hero-country");
+      const heroConditionEl = document.getElementById("hero-condition");
+      const heroTempEl = document.getElementById("hero-temp");
+      const heroTempSubEl = document.getElementById("hero-temp-sub");
+      const heroIconEl = document.getElementById("hero-icon");
+      const heroStatsEl = document.getElementById("hero-stats");
+      const forecastSection = document.getElementById("forecast-section");
+      const forecastTitleEl = document.getElementById("forecast-title");
+      const forecastSubtitleEl = document.getElementById("forecast-subtitle");
+      const brandTitleEl = document.getElementById("brand-title");
+      const brandSubtitleEl = document.getElementById("brand-subtitle");
+      const footerTitleEl = document.getElementById("footer-title");
+      const footerCreatedEl = document.getElementById("footer-created");
+      const footerRightsEl = document.getElementById("footer-rights");
+      const footerPrivacyEl = document.getElementById("footer-privacy");
+      const footerTermsEl = document.getElementById("footer-terms");
+      const footerContactEl = document.getElementById("footer-contact");
       const langEnButton = document.getElementById("lang-en");
       const langHeButton = document.getElementById("lang-he");
-      const aboutContent = document.getElementById("about-content");
-      const aboutSummary = document.getElementById("about-summary");
-      const aboutInfo = document.getElementById("about-info");
       const countrySearch = document.getElementById("country-search");
       const countryList = document.getElementById("country-list");
       const citySearch = document.getElementById("city-search");
@@ -362,7 +569,6 @@
       }
 
       let selectedLanguage = "en";
-      let aboutCloseTimer = null;
 
       async function getGeoDefaults() {
         if (!navigator.geolocation) {
@@ -514,25 +720,26 @@
         document.documentElement.lang = isHebrew ? "he" : "en";
         document.body.dir = isHebrew ? "rtl" : "ltr";
 
+        brandTitleEl.textContent = isHebrew ? "מזג אוויר" : "Weather";
+        brandSubtitleEl.textContent = isHebrew ? "תחזית ל-7 ימים" : "7-day forecast";
         document.querySelector("label[for='country-search']").textContent = isHebrew
           ? "מדינה"
           : "Country";
         document.querySelector("label[for='city-search']").textContent = isHebrew
           ? "עיר"
           : "City";
-        document.querySelector("h1").textContent = isHebrew
-          ? "תחזית שבועית"
-          : "Weekly Forecast";
-        document.querySelector(".subtitle").textContent = isHebrew
-          ? "הזן עיר ומדינה כדי לקבל תחזית ל־7 ימים."
-          : "Enter a city and country to get the 7-day outlook.";
         document.querySelector("button[type='submit']").textContent = isHebrew
           ? "קבל תחזית"
           : "Get Forecast";
-        aboutContent.textContent = isHebrew
-          ? "פותח על ידי צחי כהן. כל הזכויות שמורות."
-          : "Developed by Tzachi Cohen. All rights reserved.";
-        aboutSummary.setAttribute("aria-label", isHebrew ? "אודות" : "About");
+        footerTitleEl.textContent = isHebrew ? "תחזית מזג אוויר" : "Weather Forecast";
+        footerCreatedEl.textContent = isHebrew ? "נוצר על ידי צחי כהן" : "Created by Tzachi Cohen";
+        footerRightsEl.textContent = isHebrew
+          ? "כל הזכויות שמורות 2026"
+          : "All Rights Reserved 2026";
+        footerPrivacyEl.textContent = isHebrew ? "מדיניות פרטיות" : "Privacy Policy";
+        footerTermsEl.textContent = isHebrew ? "תנאי שימוש" : "Terms of Service";
+        footerContactEl.textContent = isHebrew ? "צור קשר" : "Contact";
+        forecastTitleEl.textContent = isHebrew ? "תחזית ל-7 ימים" : "7-Day Forecast";
         langEnButton.classList.toggle("active", !isHebrew);
         langHeButton.classList.toggle("active", isHebrew);
         langEnButton.setAttribute("aria-selected", String(!isHebrew));
@@ -677,17 +884,22 @@
         }
       }
 
-      function scheduleAboutAutoClose() {
-        if (!aboutInfo) {
-          return;
-        }
-        if (aboutCloseTimer) {
-          clearTimeout(aboutCloseTimer);
-        }
-        aboutCloseTimer = setTimeout(() => {
-          aboutInfo.removeAttribute("open");
-        }, 5000);
+      function resetHero() {
+        heroCityEl.textContent = "--";
+        heroCountryEl.textContent = "--";
+        heroConditionEl.textContent = "--";
+        heroTempEl.textContent = "--";
+        heroTempSubEl.textContent = "--";
+        heroIconEl.textContent = "⛅";
+        heroStatsEl.innerHTML = "";
+        heroCard.classList.add("hidden");
+        forecastSection.classList.add("hidden");
+        forecastSubtitleEl.textContent =
+          selectedLanguage === "he"
+            ? "תחזית מזג אוויר למיקום שלך."
+            : "Weather outlook for your location.";
       }
+
 
       function getCountryMatches(query) {
         const normalized = query.toLowerCase();
@@ -805,6 +1017,7 @@
         countryList.innerHTML = "";
         statusEl.textContent = "";
         resultEl.innerHTML = "";
+        resetHero();
         applyLocalizedDefaults(selectedLanguage);
         if (locationDefaults?.cityName) {
           const localized = await localizeCityName(
@@ -833,13 +1046,7 @@
         switchLanguage("he");
       });
 
-      if (aboutInfo) {
-        aboutInfo.addEventListener("toggle", () => {
-          if (aboutInfo.hasAttribute("open")) {
-            scheduleAboutAutoClose();
-          }
-        });
-      }
+      resetHero();
 
       countrySearch.addEventListener("input", async (event) => {
         const query = event.target.value.trim();
@@ -992,51 +1199,87 @@
         return `${day}/${month}/${year}`;
       }
 
-      function buildTable(daily) {
-        const rows = daily.time.map((date, index) => {
-          const high = daily.temperature_2m_max?.[index];
-          const low = daily.temperature_2m_min?.[index];
-          const precip = daily.precipitation_probability_max?.[index];
-          const code = daily.weathercode?.[index];
-          const codeLabel = translateWeatherCode(code);
-          const codeIcon = weatherIcon(code);
-          const tempValue = `${formatValue(low, "°C")} / ${formatValue(high, "°C")}`;
+      function formatDayLabel(dateString) {
+        const date = new Date(`${dateString}T00:00:00`);
+        const locale = selectedLanguage === "he" ? "he-IL" : "en-US";
+        return date.toLocaleDateString(locale, { weekday: "short" });
+      }
 
-          return `
-            <tr>
-              <td>${formatDate(date)}</td>
-              <td>${tempValue}</td>
-              <td>${formatValue(precip, "%")}</td>
-              <td>${codeIcon} ${codeLabel}</td>
-            </tr>
-          `;
-        });
+      function buildHero(daily, location) {
+        const todayHigh = daily.temperature_2m_max?.[0];
+        const todayLow = daily.temperature_2m_min?.[0];
+        const precip = daily.precipitation_probability_max?.[0];
+        const code = daily.weathercode?.[0];
+        const condition = translateWeatherCode(code);
+        const isHebrew = selectedLanguage === "he";
 
-        const headers =
-          selectedLanguage === "he"
-            ? ["תאריך", "טמפרטורה", "סיכוי לגשם", "תיאור"]
-            : ["Date", "Temperature", "Rain Chance", "Conditions"];
+        heroCityEl.textContent = location?.name || "--";
+        heroCountryEl.textContent = location?.country || "--";
+        heroConditionEl.textContent = condition;
+        heroIconEl.textContent = weatherIcon(code);
+        heroTempEl.textContent = formatValue(todayHigh, "°C");
+        heroTempSubEl.textContent = isHebrew
+          ? `נמוך ${formatValue(todayLow, "°C")} / גבוה ${formatValue(todayHigh, "°C")}`
+          : `Low ${formatValue(todayLow, "°C")} / High ${formatValue(todayHigh, "°C")}`;
 
-        return `
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  ${headers.map((label) => `<th>${label}</th>`).join("")}
-                </tr>
-              </thead>
-              <tbody>
-                ${rows.join("")}
-              </tbody>
-            </table>
-          </div>
-        `;
+        const stats = [
+          {
+            label: isHebrew ? "סיכוי לגשם" : "Rain chance",
+            value: formatValue(precip, "%"),
+          },
+          {
+            label: isHebrew ? "טמפרטורה" : "Temperature",
+            value: `${formatValue(todayLow, "°C")} / ${formatValue(todayHigh, "°C")}`,
+          },
+          {
+            label: isHebrew ? "תאריך" : "Date",
+            value: formatDate(daily.time?.[0]),
+          },
+          {
+            label: isHebrew ? "תנאים" : "Conditions",
+            value: condition,
+          },
+        ];
+        heroStatsEl.innerHTML = stats
+          .map(
+            (stat) => `
+              <div class="stat-card">
+                <span>${stat.label}</span>
+                <strong>${stat.value}</strong>
+              </div>
+            `,
+          )
+          .join("");
+
+        heroCard.classList.remove("hidden");
+      }
+
+      function buildForecastCards(daily) {
+        return daily.time
+          .map((date, index) => {
+            const high = daily.temperature_2m_max?.[index];
+            const low = daily.temperature_2m_min?.[index];
+            const code = daily.weathercode?.[index];
+            const isToday = index === 0;
+            const tempValue = `${formatValue(low, "°C")} / ${formatValue(high, "°C")}`;
+            return `
+              <div class="forecast-card ${isToday ? "today" : ""}">
+                <div class="forecast-day">${formatDayLabel(date)}</div>
+                <div class="forecast-date">${formatDate(date)}</div>
+                <div class="forecast-icon">${weatherIcon(code)}</div>
+                <div class="forecast-temp">${tempValue}</div>
+                <div class="forecast-desc">${translateWeatherCode(code)}</div>
+              </div>
+            `;
+          })
+          .join("");
       }
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
         statusEl.textContent = selectedLanguage === "he" ? "טוען..." : "Loading...";
         resultEl.innerHTML = "";
+        resetHero();
 
         if (!selectedCountryCode || !selectedCityName) {
           statusEl.textContent =
@@ -1068,7 +1311,13 @@
             selectedLanguage === "he"
               ? `תחזית עבור ${location.name}, ${location.country}`
               : `Forecast for ${location.name}, ${location.country}`;
-          resultEl.innerHTML = buildTable(data.daily);
+          buildHero(data.daily, location);
+          forecastSubtitleEl.textContent =
+            selectedLanguage === "he"
+              ? `תחזית עבור ${location.name}, ${location.country}`
+              : `Weather outlook for ${location.name}, ${location.country}`;
+          resultEl.innerHTML = buildForecastCards(data.daily);
+          forecastSection.classList.remove("hidden");
         } catch (error) {
           console.error(error);
           statusEl.textContent =
