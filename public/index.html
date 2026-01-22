@@ -15,7 +15,7 @@
         --accent-2: #2563eb;
         --border: #e2e8f0;
         --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-        --hero: linear-gradient(135deg, #1187d8 0%, #0c6dbf 100%);
+        --hero: linear-gradient(135deg, #1f8ae0 0%, #0c66c2 100%);
       }
       * {
         box-sizing: border-box;
@@ -75,27 +75,32 @@
       }
       .lang-tabs {
         display: inline-flex;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
+        gap: 8px;
+        padding: 4px;
         border-radius: 999px;
-        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-        overflow: hidden;
+        background: transparent;
+        box-shadow: none;
       }
       .lang-tabs button {
-        border: none;
-        background: transparent;
-        padding: 6px 14px;
-        font-size: 13px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        padding: 4px 10px;
+        font-size: 12px;
         font-weight: 600;
+        line-height: 1;
+        height: 24px;
+        min-width: 36px;
+        border-radius: 999px;
         cursor: pointer;
         color: #64748b;
         box-shadow: none;
       }
       #lang-he {
-        font-size: 14px;
+        font-size: 12px;
       }
       .lang-tabs button.active {
-        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        background: #1f8ae0;
+        border-color: #1f8ae0;
         color: white;
       }
       .search-card {
@@ -114,6 +119,7 @@
       .search-form .field:last-child {
         display: flex;
         justify-content: flex-end;
+        align-items: flex-end;
       }
       .field label {
         display: block;
