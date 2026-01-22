@@ -1071,7 +1071,9 @@
         }
         applyLanguage();
         await loadCountries();
+        autoSubmitPending = true;
         applyLocationDefaults();
+        submitIfReady();
       }
 
       langEnButton.addEventListener("click", () => {
