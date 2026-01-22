@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weekly Forecast</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #0ea5e9;
+        --bg-2: #6366f1;
+        --card: rgba(255, 255, 255, 0.86);
+        --text: #0f172a;
+        --muted: #475569;
+        --accent: #2563eb;
+        --accent-2: #f97316;
+        --border: rgba(148, 163, 184, 0.45);
+        --shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: var(--text);
+        min-height: 100vh;
+        background: radial-gradient(circle at top, #e0f2fe 0%, #f8fafc 35%, #f1f5f9 70%);
+        position: relative;
+        overflow-x: hidden;
+      }
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+      }
+      body::before {
+        background: linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 100%);
+        opacity: 0.9;
+      }
+      body::after {
+        background:
+          radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.75) 0 120px, transparent 140px),
+          radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.6) 0 140px, transparent 160px),
+          radial-gradient(circle at 70% 18%, rgba(255, 255, 255, 0.7) 0 120px, transparent 150px),
+          radial-gradient(circle at 82% 30%, rgba(255, 255, 255, 0.55) 0 140px, transparent 170px),
+          radial-gradient(circle at 20% 75%, rgba(255, 255, 255, 0.6) 0 140px, transparent 175px),
+          radial-gradient(circle at 75% 70%, rgba(255, 255, 255, 0.5) 0 160px, transparent 190px);
+        opacity: 0.7;
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 40px 20px 60px;
+        position: relative;
+      }
+      .card {
+        background: var(--card);
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        backdrop-filter: blur(14px);
+      }
+      .lang-tabs {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: inline-flex;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 999px;
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+      }
+      .lang-tabs button {
+        border: none;
+        background: transparent;
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        color: var(--muted);
+        box-shadow: none;
+      }
+      .lang-tabs button.active {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: white;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 30px;
+        font-weight: 700;
+      }
+      p.subtitle {
+        margin: 0 0 24px;
+        color: var(--muted);
+      }
+      form {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+        gap: 12px;
+        align-items: end;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 6px;
+        color: var(--muted);
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 11px 12px;
+        font-size: 15px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+      }
+      select {
+        appearance: none;
+        background-image: linear-gradient(45deg, transparent 50%, #64748b 50%),
+          linear-gradient(135deg, #64748b 50%, transparent 50%);
+        background-position: calc(100% - 18px) calc(50% + 2px),
+          calc(100% - 12px) calc(50% + 2px);
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
+        padding-right: 32px;
+      }
+      .dropdown {
+        position: relative;
+      }
+      .dropdown input {
+        padding-right: 36px;
+      }
+      .dropdown .chevron {
+        position: absolute;
+        right: 12px;
+        top: 38px;
+        color: var(--muted);
+        pointer-events: none;
+      }
+      .dropdown-list {
+        position: absolute;
+        z-index: 10;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-top: 6px;
+        max-height: 220px;
+        overflow-y: auto;
+        width: 100%;
+        box-shadow: var(--shadow);
+        display: none;
+      }
+      .dropdown-list.open {
+        display: block;
+      }
+      .dropdown-item {
+        padding: 10px 12px;
+        cursor: pointer;
+      }
+      .dropdown-item:hover,
+      .dropdown-item.active {
+        background: #eef2ff;
+      }
+      button {
+        padding: 12px 18px;
+        font-size: 15px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: white;
+        cursor: pointer;
+        transition: transform 0.05s ease, box-shadow 0.2s ease;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35);
+      }
+      button:active {
+        transform: translateY(1px);
+      }
+      #status {
+        margin-top: 16px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .table-wrap {
+        margin-top: 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: white;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 640px;
+      }
+      th,
+      td {
+        padding: 10px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+      }
+      th {
+        background: #f1f5ff;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      @media (max-width: 720px) {
+        main {
+          padding: 24px 16px 40px;
+        }
+        form {
+          grid-template-columns: 1fr;
+        }
+        .lang-toggle {
+          position: static;
+          margin-bottom: 12px;
+        }
+        button {
+          width: 100%;
+        }
+        table {
+          min-width: 560px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="card">
+        <div class="lang-tabs" role="tablist" aria-label="Language">
+          <button id="lang-en" type="button" role="tab" aria-selected="true" class="active">
+            EN
+          </button>
+          <button id="lang-he" type="button" role="tab" aria-selected="false">
+            HE
+          </button>
+        </div>
+        <h1>Weekly Forecast</h1>
+        <p class="subtitle">Enter a city and country to get the 7-day outlook.</p>
+        <form id="forecast-form">
+          <div class="dropdown">
+            <label for="country-search">Country</label>
+            <input
+              id="country-search"
+              placeholder="Type at least 2 letters"
+              required
+              autocomplete="off"
+            />
+            <span class="chevron">▾</span>
+            <div id="country-list" class="dropdown-list"></div>
+          </div>
+          <div class="dropdown">
+            <label for="city-search">City</label>
+            <input
+              id="city-search"
+              placeholder="Select a country first"
+              disabled
+              autocomplete="off"
+            />
+            <span class="chevron">▾</span>
+            <div id="city-list" class="dropdown-list"></div>
+          </div>
+          <div>
+            <button type="submit">Get Forecast</button>
+          </div>
+        </form>
+        <div id="status"></div>
+        <div id="result"></div>
+      </div>
+    </main>
+
+    <script>
+      const form = document.getElementById("forecast-form");
+      const statusEl = document.getElementById("status");
+      const resultEl = document.getElementById("result");
+      const langEnButton = document.getElementById("lang-en");
+      const langHeButton = document.getElementById("lang-he");
+      const countrySearch = document.getElementById("country-search");
+      const countryList = document.getElementById("country-list");
+      const citySearch = document.getElementById("city-search");
+      const cityList = document.getElementById("city-list");
+
+      let allCountries = [];
+      let selectedCountryCode = "";
+      let selectedCityName = "";
+      let selectedLanguage = "en";
+
+      async function loadCountries() {
+        try {
+          const response = await fetch(
+            `/api/countries?lang=${encodeURIComponent(selectedLanguage)}&refresh=1`,
+          );
+          const data = await response.json();
+          if (!response.ok) {
+            statusEl.textContent =
+              selectedLanguage === "he"
+                ? data.error || "טעינת המדינות נכשלה."
+                : data.error || "Failed to load countries.";
+            return;
+          }
+
+          const heDisplay = new Intl.DisplayNames(["he"], { type: "region" });
+          const enDisplay = new Intl.DisplayNames(["en"], { type: "region" });
+
+          allCountries = data.countries.map((country) => {
+            const hebrewName = country.hebrewName || heDisplay.of(country.code);
+            const englishName = country.englishName || enDisplay.of(country.code);
+            return {
+              ...country,
+              englishName: englishName || country.name,
+              hebrewName: hebrewName || country.name,
+              name:
+                selectedLanguage === "he"
+                  ? hebrewName || country.name
+                  : country.name || englishName,
+            };
+          });
+        } catch (error) {
+          console.error(error);
+          statusEl.textContent =
+            selectedLanguage === "he" ? "טעינת המדינות נכשלה." : "Failed to load countries.";
+        }
+      }
+
+      let cityFetchController = null;
+
+      function openList(listEl) {
+        listEl.classList.add("open");
+      }
+
+      function closeList(listEl) {
+        listEl.classList.remove("open");
+      }
+
+      function applyLanguage() {
+        const isHebrew = selectedLanguage === "he";
+        document.documentElement.lang = isHebrew ? "he" : "en";
+        document.body.dir = isHebrew ? "rtl" : "ltr";
+
+        document.querySelector("label[for='country-search']").textContent = isHebrew
+          ? "מדינה"
+          : "Country";
+        document.querySelector("label[for='city-search']").textContent = isHebrew
+          ? "עיר"
+          : "City";
+        document.querySelector("h1").textContent = isHebrew
+          ? "תחזית שבועית"
+          : "Weekly Forecast";
+        document.querySelector(".subtitle").textContent = isHebrew
+          ? "הזן עיר ומדינה כדי לקבל תחזית ל־7 ימים."
+          : "Enter a city and country to get the 7-day outlook.";
+        document.querySelector("button[type='submit']").textContent = isHebrew
+          ? "קבל תחזית"
+          : "Get Forecast";
+        langEnButton.classList.toggle("active", !isHebrew);
+        langHeButton.classList.toggle("active", isHebrew);
+        langEnButton.setAttribute("aria-selected", String(!isHebrew));
+        langHeButton.setAttribute("aria-selected", String(isHebrew));
+
+        countrySearch.placeholder = isHebrew
+          ? "הקלד לפחות 2 אותיות"
+          : "Type at least 2 letters";
+        citySearch.placeholder = selectedCountryCode
+          ? isHebrew
+            ? "הקלד לפחות 2 אותיות"
+            : "Type at least 2 letters"
+          : isHebrew
+            ? "בחר מדינה תחילה"
+            : "Select a country first";
+      }
+
+      function translateWeatherCode(code) {
+        if (selectedLanguage !== "he") {
+          return weatherCodeMap[code] || "Unknown";
+        }
+        const hebrewMap = {
+          0: "שמיים בהירים",
+          1: "בהיר בעיקר",
+          2: "מעונן חלקית",
+          3: "מעונן",
+          45: "ערפל",
+          48: "ערפל קרח",
+          51: "טפטוף קל",
+          53: "טפטוף בינוני",
+          55: "טפטוף כבד",
+          56: "טפטוף קפוא קל",
+          57: "טפטוף קפוא כבד",
+          61: "גשם קל",
+          63: "גשם בינוני",
+          65: "גשם כבד",
+          66: "גשם קופא קל",
+          67: "גשם קופא כבד",
+          71: "שלג קל",
+          73: "שלג בינוני",
+          75: "שלג כבד",
+          77: "גרגרי שלג",
+          80: "ממטרים קלים",
+          81: "ממטרים בינוניים",
+          82: "ממטרים חזקים",
+          85: "ממטרי שלג קלים",
+          86: "ממטרי שלג חזקים",
+          95: "סופת רעמים",
+          96: "סופת רעמים עם ברד קל",
+          99: "סופת רעמים עם ברד כבד",
+        };
+        return hebrewMap[code] || "לא ידוע";
+      }
+
+      function weatherIcon(code) {
+        if (code === 0) return "☀️";
+        if (code === 1) return "🌤️";
+        if (code === 2) return "⛅";
+        if (code === 3) return "☁️";
+        if (code === 45 || code === 48) return "🌫️";
+        if (code >= 51 && code <= 57) return "🌦️";
+        if (code >= 61 && code <= 67) return "🌧️";
+        if (code >= 71 && code <= 77) return "🌨️";
+        if (code >= 80 && code <= 82) return "🌦️";
+        if (code >= 85 && code <= 86) return "❄️";
+        if (code >= 95) return "⛈️";
+        return "🌡️";
+      }
+
+      function setCountrySelection(country) {
+        countrySearch.value = `${country.name} (${country.code})`;
+        selectedCountryCode = country.code;
+        closeList(countryList);
+        citySearch.disabled = false;
+        citySearch.placeholder =
+          selectedLanguage === "he" ? "הקלד לפחות 2 אותיות" : "Type at least 2 letters";
+        citySearch.value = "";
+        selectedCityName = "";
+        cityList.innerHTML = "";
+      }
+
+      function setCitySelection(city) {
+        citySearch.value = city.admin1 ? `${city.name} (${city.admin1})` : city.name;
+        selectedCityName = city.name;
+        closeList(cityList);
+      }
+
+      function renderCountryList(matches) {
+        countryList.innerHTML = "";
+        matches.forEach((country) => {
+          const item = document.createElement("div");
+          item.className = "dropdown-item";
+          item.textContent = `${country.name} (${country.code})`;
+          item.addEventListener("mousedown", (event) => {
+            event.preventDefault();
+            setCountrySelection(country);
+          });
+          countryList.appendChild(item);
+        });
+        if (matches.length > 0) {
+          openList(countryList);
+        } else {
+          closeList(countryList);
+        }
+      }
+
+      function getCountryMatches(query) {
+        const normalized = query.toLowerCase();
+        return allCountries
+          .filter((country) => {
+            const nameMatch = country.name.toLowerCase().includes(normalized);
+            const codeMatch = country.code.toLowerCase().includes(normalized);
+            const englishMatch = country.englishName
+              ? country.englishName.toLowerCase().includes(normalized)
+              : false;
+            const hebrewMatch = country.hebrewName
+              ? country.hebrewName.toLowerCase().includes(normalized)
+              : false;
+            const altMatch = Array.isArray(country.altSpellings)
+              ? country.altSpellings.some((alt) =>
+                  alt.toLowerCase().includes(normalized),
+                )
+              : false;
+            return nameMatch || codeMatch || englishMatch || hebrewMatch || altMatch;
+          })
+          .slice(0, 50);
+      }
+
+      let countryFetchController = null;
+
+      async function fetchCountryMatches(query) {
+        if (countryFetchController) {
+          countryFetchController.abort();
+        }
+
+        countryFetchController = new AbortController();
+        try {
+          const params = new URLSearchParams({
+            query,
+            lang: selectedLanguage,
+          });
+          const response = await fetch(`/api/countries/search?${params.toString()}`, {
+            signal: countryFetchController.signal,
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            return [];
+          }
+          return Array.isArray(data.countries) ? data.countries : [];
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            console.error(error);
+          }
+          return [];
+        }
+      }
+
+      async function renderCityList(countryCode, query) {
+        if (query.length < 2) {
+          closeList(cityList);
+          return;
+        }
+
+        if (cityFetchController) {
+          cityFetchController.abort();
+        }
+
+        cityFetchController = new AbortController();
+        try {
+          const params = new URLSearchParams({
+            country: countryCode,
+            query,
+            lang: selectedLanguage,
+          });
+          const response = await fetch(`/api/cities?${params.toString()}`, {
+            signal: cityFetchController.signal,
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            closeList(cityList);
+            return;
+          }
+
+          cityList.innerHTML = "";
+          data.cities.forEach((city) => {
+            const item = document.createElement("div");
+            item.className = "dropdown-item";
+            item.textContent = city.admin1
+              ? `${city.name} (${city.admin1})`
+              : city.name;
+            item.addEventListener("mousedown", (event) => {
+              event.preventDefault();
+              setCitySelection(city);
+            });
+            cityList.appendChild(item);
+          });
+          if (data.cities.length > 0) {
+            openList(cityList);
+          } else {
+            closeList(cityList);
+          }
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            console.error(error);
+          }
+        }
+      }
+
+      async function switchLanguage(nextLang) {
+        if (nextLang === selectedLanguage) {
+          return;
+        }
+        selectedLanguage = nextLang;
+        selectedCountryCode = "";
+        selectedCityName = "";
+        countrySearch.value = "";
+        citySearch.value = "";
+        citySearch.disabled = true;
+        cityList.innerHTML = "";
+        countryList.innerHTML = "";
+        applyLanguage();
+        await loadCountries();
+      }
+
+      langEnButton.addEventListener("click", () => {
+        switchLanguage("en");
+      });
+
+      langHeButton.addEventListener("click", () => {
+        switchLanguage("he");
+      });
+
+      countrySearch.addEventListener("input", async (event) => {
+        const query = event.target.value.trim();
+        selectedCountryCode = "";
+        selectedCityName = "";
+        citySearch.value = "";
+        citySearch.disabled = true;
+        citySearch.placeholder =
+          selectedLanguage === "he" ? "בחר מדינה תחילה" : "Select a country first";
+        cityList.innerHTML = "";
+
+        if (query.length < 2) {
+          closeList(countryList);
+          return;
+        }
+        let matches = getCountryMatches(query);
+        if (matches.length === 0 && selectedLanguage === "he") {
+          matches = await fetchCountryMatches(query);
+        }
+        renderCountryList(matches);
+      });
+
+      countrySearch.addEventListener("focus", async () => {
+        if (countrySearch.value.trim().length >= 2) {
+          let matches = getCountryMatches(countrySearch.value.trim());
+          if (matches.length === 0 && selectedLanguage === "he") {
+            matches = await fetchCountryMatches(countrySearch.value.trim());
+          }
+          renderCountryList(matches);
+        }
+      });
+
+      citySearch.addEventListener("input", (event) => {
+        if (!selectedCountryCode) {
+          return;
+        }
+        renderCityList(selectedCountryCode, event.target.value.trim());
+      });
+
+      citySearch.addEventListener("focus", () => {
+        if (!selectedCountryCode) {
+          return;
+        }
+        if (citySearch.value.trim().length >= 2) {
+          renderCityList(selectedCountryCode, citySearch.value.trim());
+        }
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!countrySearch.contains(event.target) && !countryList.contains(event.target)) {
+          closeList(countryList);
+        }
+        if (!citySearch.contains(event.target) && !cityList.contains(event.target)) {
+          closeList(cityList);
+        }
+      });
+
+      closeList(countryList);
+      closeList(cityList);
+      applyLanguage();
+      loadCountries();
+
+      const weatherCodeMap = {
+        0: "Clear sky",
+        1: "Mainly clear",
+        2: "Partly cloudy",
+        3: "Overcast",
+        45: "Fog",
+        48: "Depositing rime fog",
+        51: "Drizzle: light",
+        53: "Drizzle: moderate",
+        55: "Drizzle: dense",
+        56: "Freezing drizzle: light",
+        57: "Freezing drizzle: dense",
+        61: "Rain: slight",
+        63: "Rain: moderate",
+        65: "Rain: heavy",
+        66: "Freezing rain: light",
+        67: "Freezing rain: heavy",
+        71: "Snow: slight",
+        73: "Snow: moderate",
+        75: "Snow: heavy",
+        77: "Snow grains",
+        80: "Rain showers: slight",
+        81: "Rain showers: moderate",
+        82: "Rain showers: violent",
+        85: "Snow showers: slight",
+        86: "Snow showers: heavy",
+        95: "Thunderstorm",
+        96: "Thunderstorm with slight hail",
+        99: "Thunderstorm with heavy hail",
+      };
+
+      function formatValue(value, suffix = "") {
+        if (value === null || value === undefined || Number.isNaN(value)) {
+          return selectedLanguage === "he" ? "לא ידוע" : "Unknown";
+        }
+        return `${value}${suffix}`;
+      }
+
+      function buildTable(daily, countryLabel) {
+        const rows = daily.time.map((date, index) => {
+          const high = daily.temperature_2m_max?.[index];
+          const low = daily.temperature_2m_min?.[index];
+          const precip = daily.precipitation_probability_max?.[index];
+          const code = daily.weathercode?.[index];
+          const codeLabel = translateWeatherCode(code);
+          const codeIcon = weatherIcon(code);
+
+          return `
+            <tr>
+              <td>${countryLabel}</td>
+              <td>${date}</td>
+              <td>${formatValue(high, "°C")}</td>
+              <td>${formatValue(low, "°C")}</td>
+              <td>${formatValue(precip, "%")}</td>
+              <td>${codeIcon} ${codeLabel}</td>
+            </tr>
+          `;
+        });
+
+        const headers =
+          selectedLanguage === "he"
+            ? ["מדינה", "תאריך", "גבוה", "נמוך", "סיכוי לגשם", "תיאור"]
+            : ["Country", "Date", "High", "Low", "Rain Chance", "Conditions"];
+
+        return `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  ${headers.map((label) => `<th>${label}</th>`).join("")}
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        statusEl.textContent = selectedLanguage === "he" ? "טוען..." : "Loading...";
+        resultEl.innerHTML = "";
+
+        if (!selectedCountryCode || !selectedCityName) {
+          statusEl.textContent =
+            selectedLanguage === "he"
+              ? "אנא בחר מדינה ועיר."
+              : "Please select both country and city.";
+          return;
+        }
+
+        try {
+          const params = new URLSearchParams({
+            city: selectedCityName,
+            country: selectedCountryCode,
+            lang: selectedLanguage,
+          });
+          const response = await fetch(`/api/forecast?${params.toString()}`);
+          const data = await response.json();
+
+          if (!response.ok) {
+            statusEl.textContent =
+              selectedLanguage === "he"
+                ? data.error || "הבקשה נכשלה."
+                : data.error || "Request failed.";
+            return;
+          }
+
+          const location = data.location;
+          const countryLabel =
+            location.country || (selectedLanguage === "he" ? "לא ידוע" : "Unknown");
+          statusEl.textContent =
+            selectedLanguage === "he"
+              ? `תחזית עבור ${location.name}, ${location.country}`
+              : `Forecast for ${location.name}, ${location.country}`;
+          resultEl.innerHTML = buildTable(data.daily, countryLabel);
+        } catch (error) {
+          console.error(error);
+          statusEl.textContent =
+            selectedLanguage === "he"
+              ? "שגיאה לא צפויה. נסה שוב."
+              : "Unexpected error. Please try again.";
+        }
+      });
+    </script>
+  </body>
+</html>
