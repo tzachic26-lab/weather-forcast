@@ -59,7 +59,7 @@
       .card {
         background: var(--card);
         border-radius: 20px;
-        padding: 28px;
+        padding: 56px 28px 28px;
         box-shadow: var(--shadow);
         border: 1px solid var(--border);
         backdrop-filter: blur(14px);
@@ -91,6 +91,40 @@
       .lang-tabs button.active {
         background: linear-gradient(135deg, var(--accent), var(--accent-2));
         color: white;
+      }
+      .about {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+      }
+      .about summary {
+        list-style: none;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.85);
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .about summary::-webkit-details-marker {
+        display: none;
+      }
+      .about-content {
+        margin-top: 8px;
+        padding: 10px 12px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        font-size: 13px;
+        color: var(--muted);
+        max-width: 220px;
       }
       h1 {
         margin: 0 0 8px;
@@ -208,6 +242,10 @@
         border-bottom: 1px solid var(--border);
         font-size: 14px;
       }
+      html[lang="he"] th,
+      html[lang="he"] td {
+        text-align: right;
+      }
       th {
         background: #f1f5ff;
         color: var(--muted);
@@ -239,6 +277,10 @@
   <body>
     <main>
       <div class="card">
+        <details class="about" id="about-info">
+          <summary id="about-summary" aria-label="About">ℹ️</summary>
+          <div class="about-content" id="about-content"></div>
+        </details>
         <div class="lang-tabs" role="tablist" aria-label="Language">
           <button id="lang-en" type="button" role="tab" aria-selected="true" class="active">
             EN
@@ -287,6 +329,8 @@
       const resultEl = document.getElementById("result");
       const langEnButton = document.getElementById("lang-en");
       const langHeButton = document.getElementById("lang-he");
+      const aboutContent = document.getElementById("about-content");
+      const aboutSummary = document.getElementById("about-summary");
       const countrySearch = document.getElementById("country-search");
       const countryList = document.getElementById("country-list");
       const citySearch = document.getElementById("city-search");
@@ -364,6 +408,10 @@
         document.querySelector("button[type='submit']").textContent = isHebrew
           ? "קבל תחזית"
           : "Get Forecast";
+        aboutContent.textContent = isHebrew
+          ? "פותח על ידי צחי כהן. כל הזכויות שמורות."
+          : "Developed by Tzachi Cohen. All rights reserved.";
+        aboutSummary.setAttribute("aria-label", isHebrew ? "אודות" : "About");
         langEnButton.classList.toggle("active", !isHebrew);
         langHeButton.classList.toggle("active", isHebrew);
         langEnButton.setAttribute("aria-selected", String(!isHebrew));
@@ -584,6 +632,8 @@
         citySearch.disabled = true;
         cityList.innerHTML = "";
         countryList.innerHTML = "";
+        statusEl.textContent = "";
+        resultEl.innerHTML = "";
         applyLanguage();
         await loadCountries();
       }
@@ -695,7 +745,7 @@
         return `${value}${suffix}`;
       }
 
-      function buildTable(daily, countryLabel) {
+      function buildTable(daily) {
         const rows = daily.time.map((date, index) => {
           const high = daily.temperature_2m_max?.[index];
           const low = daily.temperature_2m_min?.[index];
@@ -706,7 +756,6 @@
 
           return `
             <tr>
-              <td>${countryLabel}</td>
               <td>${date}</td>
               <td>${formatValue(high, "°C")}</td>
               <td>${formatValue(low, "°C")}</td>
@@ -718,8 +767,8 @@
 
         const headers =
           selectedLanguage === "he"
-            ? ["מדינה", "תאריך", "גבוה", "נמוך", "סיכוי לגשם", "תיאור"]
-            : ["Country", "Date", "High", "Low", "Rain Chance", "Conditions"];
+            ? ["תאריך", "גבוה", "נמוך", "סיכוי לגשם", "תיאור"]
+            : ["Date", "High", "Low", "Rain Chance", "Conditions"];
 
         return `
           <div class="table-wrap">
@@ -768,13 +817,11 @@
           }
 
           const location = data.location;
-          const countryLabel =
-            location.country || (selectedLanguage === "he" ? "לא ידוע" : "Unknown");
           statusEl.textContent =
             selectedLanguage === "he"
               ? `תחזית עבור ${location.name}, ${location.country}`
               : `Forecast for ${location.name}, ${location.country}`;
-          resultEl.innerHTML = buildTable(data.daily, countryLabel);
+          resultEl.innerHTML = buildTable(data.daily);
         } catch (error) {
           console.error(error);
           statusEl.textContent =
