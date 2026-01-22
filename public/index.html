@@ -25,7 +25,25 @@
         font-family: "Segoe UI", Arial, sans-serif;
         color: var(--text);
         min-height: 100vh;
-        background: var(--bg);
+        background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+        position: relative;
+        overflow-x: hidden;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 12% 14%, rgba(147, 197, 253, 0.35) 0 170px, transparent 230px),
+          radial-gradient(circle at 28% 20%, rgba(191, 219, 254, 0.35) 0 200px, transparent 260px),
+          radial-gradient(circle at 78% 16%, rgba(147, 197, 253, 0.32) 0 190px, transparent 250px),
+          radial-gradient(circle at 88% 32%, rgba(191, 219, 254, 0.32) 0 220px, transparent 290px),
+          radial-gradient(circle at 18% 78%, rgba(147, 197, 253, 0.3) 0 240px, transparent 320px),
+          radial-gradient(circle at 76% 76%, rgba(191, 219, 254, 0.3) 0 260px, transparent 340px);
+        opacity: 0.9;
+        filter: blur(1px);
       }
       main.app {
         max-width: 1120px;
