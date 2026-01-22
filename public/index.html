@@ -339,7 +339,25 @@
       let allCountries = [];
       let selectedCountryCode = "";
       let selectedCityName = "";
-      let selectedLanguage = "en";
+      function getDefaultLanguage() {
+        const locale = (navigator.language || "").toLowerCase();
+        const locales = Array.isArray(navigator.languages) ? navigator.languages : [];
+        const combined = [locale, ...locales].join(",").toLowerCase();
+        if (combined.includes("he") || combined.includes("he-il")) {
+          return "he";
+        }
+        try {
+          const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          if (timeZone && timeZone.toLowerCase() === "asia/jerusalem") {
+            return "he";
+          }
+        } catch (error) {
+          console.warn("Unable to detect time zone for language default:", error);
+        }
+        return "en";
+      }
+
+      let selectedLanguage = getDefaultLanguage();
 
       async function loadCountries() {
         try {
