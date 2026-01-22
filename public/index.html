@@ -340,6 +340,7 @@
       let selectedCountryCode = "";
       let selectedCityName = "";
       let locationDefaults = null;
+      let rawLocationDefaults = null;
 
       function getDefaultLanguage() {
         const locale = (navigator.language || "").toLowerCase();
@@ -790,8 +791,24 @@
         countryList.innerHTML = "";
         statusEl.textContent = "";
         resultEl.innerHTML = "";
+        applyLocalizedDefaults(selectedLanguage);
+        if (locationDefaults?.cityName) {
+          const localized = await localizeCityName(
+            locationDefaults.countryCode,
+            locationDefaults.cityName,
+            selectedLanguage,
+          );
+          if (localized) {
+            locationDefaults = {
+              ...locationDefaults,
+              cityName: localized.cityName,
+              admin1: localized.admin1,
+            };
+          }
+        }
         applyLanguage();
         await loadCountries();
+        applyLocationDefaults();
       }
 
       langEnButton.addEventListener("click", () => {
@@ -860,14 +877,30 @@
 
       closeList(countryList);
       closeList(cityList);
+      function applyLocalizedDefaults(targetLang) {
+        if (!rawLocationDefaults) {
+          locationDefaults = null;
+          return;
+        }
+        if (targetLang === "en") {
+          locationDefaults = { ...rawLocationDefaults };
+          return;
+        }
+        if (!rawLocationDefaults.cityName) {
+          locationDefaults = { ...rawLocationDefaults };
+          return;
+        }
+        locationDefaults = { ...rawLocationDefaults };
+      }
       async function initApp() {
-        locationDefaults = await getLocationDefaults();
-        if (locationDefaults?.countryCode === "IL") {
+        rawLocationDefaults = await getLocationDefaults();
+        if (rawLocationDefaults?.countryCode === "IL") {
           selectedLanguage = "he";
         } else {
           selectedLanguage = getDefaultLanguage();
         }
-        if (selectedLanguage !== "en" && locationDefaults?.cityName) {
+        applyLocalizedDefaults(selectedLanguage);
+        if (locationDefaults?.cityName) {
           const localized = await localizeCityName(
             locationDefaults.countryCode,
             locationDefaults.cityName,
@@ -925,6 +958,18 @@
         return `${value}${suffix}`;
       }
 
+      function formatDate(dateString) {
+        if (!dateString) {
+          return "";
+        }
+        const parts = dateString.split("-");
+        if (parts.length !== 3) {
+          return dateString;
+        }
+        const [year, month, day] = parts;
+        return `${day}/${month}/${year}`;
+      }
+
       function buildTable(daily) {
         const rows = daily.time.map((date, index) => {
           const high = daily.temperature_2m_max?.[index];
@@ -933,12 +978,12 @@
           const code = daily.weathercode?.[index];
           const codeLabel = translateWeatherCode(code);
           const codeIcon = weatherIcon(code);
+          const tempValue = `${formatValue(low, "°C")} / ${formatValue(high, "°C")}`;
 
           return `
             <tr>
-              <td>${date}</td>
-              <td>${formatValue(high, "°C")}</td>
-              <td>${formatValue(low, "°C")}</td>
+              <td>${formatDate(date)}</td>
+              <td>${tempValue}</td>
               <td>${formatValue(precip, "%")}</td>
               <td>${codeIcon} ${codeLabel}</td>
             </tr>
@@ -947,8 +992,8 @@
 
         const headers =
           selectedLanguage === "he"
-            ? ["תאריך", "גבוה", "נמוך", "סיכוי לגשם", "תיאור"]
-            : ["Date", "High", "Low", "Rain Chance", "Conditions"];
+            ? ["תאריך", "טמפרטורה", "סיכוי לגשם", "תיאור"]
+            : ["Date", "Temperature", "Rain Chance", "Conditions"];
 
         return `
           <div class="table-wrap">
