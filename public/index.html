@@ -339,6 +339,8 @@
       let allCountries = [];
       let selectedCountryCode = "";
       let selectedCityName = "";
+      let locationDefaults = null;
+
       function getDefaultLanguage() {
         const locale = (navigator.language || "").toLowerCase();
         const locales = Array.isArray(navigator.languages) ? navigator.languages : [];
@@ -357,7 +359,105 @@
         return "en";
       }
 
-      let selectedLanguage = getDefaultLanguage();
+      let selectedLanguage = "en";
+
+      async function getGeoDefaults() {
+        if (!navigator.geolocation) {
+          return null;
+        }
+
+        return new Promise((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              (async () => {
+                try {
+                  const response = await fetch(
+                    `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${latitude}&longitude=${longitude}&count=1&language=en&format=json`,
+                  );
+                  const data = await response.json();
+                  const hit = data?.results?.[0];
+                  if (!hit) {
+                    resolve(null);
+                    return;
+                  }
+                  resolve({
+                    countryCode: hit.country_code?.toUpperCase() || "",
+                    countryName: hit.country || "",
+                    cityName: hit.name || "",
+                    admin1: hit.admin1 ?? null,
+                  });
+                } catch (error) {
+                  console.warn("Unable to reverse geocode location:", error);
+                  resolve(null);
+                }
+              })();
+            },
+            (error) => {
+              console.warn("Geolocation not available:", error);
+              resolve(null);
+            },
+            { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 },
+          );
+        });
+      }
+
+      async function getIpDefaults() {
+        try {
+          const response = await fetch("https://ipapi.co/json/");
+          const data = await response.json();
+          if (!data) {
+            return null;
+          }
+          return {
+            countryCode: data.country_code ? data.country_code.toUpperCase() : "",
+            countryName: data.country_name || "",
+            cityName: data.city || "",
+            admin1: data.region || null,
+          };
+        } catch (error) {
+          console.warn("Unable to resolve IP location:", error);
+          return null;
+        }
+      }
+
+      async function localizeCityName(countryCode, cityName, lang) {
+        if (!countryCode || !cityName || !lang) {
+          return null;
+        }
+        try {
+          const params = new URLSearchParams({
+            name: cityName,
+            count: "1",
+            language: lang,
+            format: "json",
+            country: countryCode,
+          });
+          const response = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?${params.toString()}`,
+          );
+          const data = await response.json();
+          const hit = data?.results?.[0];
+          if (!hit) {
+            return null;
+          }
+          return {
+            cityName: hit.name || cityName,
+            admin1: hit.admin1 ?? null,
+          };
+        } catch (error) {
+          console.warn("Unable to localize city name:", error);
+          return null;
+        }
+      }
+
+      async function getLocationDefaults() {
+        const geoDefaults = await getGeoDefaults();
+        if (geoDefaults) {
+          return geoDefaults;
+        }
+        return getIpDefaults();
+      }
 
       async function loadCountries() {
         try {
@@ -533,6 +633,44 @@
           openList(countryList);
         } else {
           closeList(countryList);
+        }
+      }
+
+      function applyLocationDefaults() {
+        if (!locationDefaults) {
+          return;
+        }
+
+        const { countryCode, countryName, cityName, admin1 } = locationDefaults;
+        let countryMatch = null;
+        if (countryCode) {
+          countryMatch = allCountries.find((country) => country.code === countryCode);
+        }
+        if (!countryMatch && countryName) {
+          const normalized = countryName.toLowerCase();
+          countryMatch = allCountries.find((country) => {
+            const english = country.englishName?.toLowerCase();
+            const hebrew = country.hebrewName?.toLowerCase();
+            return (
+              country.name.toLowerCase() === normalized ||
+              (english && english === normalized) ||
+              (hebrew && hebrew === normalized)
+            );
+          });
+        }
+        if (countryMatch) {
+          setCountrySelection(countryMatch);
+        } else if (countryCode || countryName) {
+          setCountrySelection({
+            code: countryCode || countryName,
+            name: countryName || countryCode,
+            englishName: countryName || countryCode,
+            hebrewName: countryName || countryCode,
+          });
+        }
+
+        if (selectedCountryCode && cityName) {
+          setCitySelection({ name: cityName, admin1 });
         }
       }
 
@@ -722,8 +860,32 @@
 
       closeList(countryList);
       closeList(cityList);
-      applyLanguage();
-      loadCountries();
+      async function initApp() {
+        locationDefaults = await getLocationDefaults();
+        if (locationDefaults?.countryCode === "IL") {
+          selectedLanguage = "he";
+        } else {
+          selectedLanguage = getDefaultLanguage();
+        }
+        if (selectedLanguage !== "en" && locationDefaults?.cityName) {
+          const localized = await localizeCityName(
+            locationDefaults.countryCode,
+            locationDefaults.cityName,
+            selectedLanguage,
+          );
+          if (localized) {
+            locationDefaults = {
+              ...locationDefaults,
+              cityName: localized.cityName,
+              admin1: localized.admin1,
+            };
+          }
+        }
+        applyLanguage();
+        await loadCountries();
+        applyLocationDefaults();
+      }
+      initApp();
 
       const weatherCodeMap = {
         0: "Clear sky",
