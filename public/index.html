@@ -515,8 +515,9 @@
           padding: 20px 16px 36px;
         }
         .app-header {
-          flex-direction: column;
-          align-items: flex-start;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
         }
         .search-form {
           grid-template-columns: 1fr;
@@ -525,8 +526,18 @@
           width: 100%;
         }
         .hero-main {
-          flex-direction: column;
+          flex-direction: row;
           align-items: flex-start;
+          justify-content: space-between;
+          gap: 16px;
+        }
+        .hero-temp {
+          align-items: flex-end;
+          text-align: right;
+        }
+        body[dir="rtl"] .hero-temp {
+          align-items: flex-start;
+          text-align: left;
         }
         .forecast-grid {
           display: none;
