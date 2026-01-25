@@ -28,4 +28,6 @@ Example tool call (JSON-RPC):
 ```
 
 ## Screenshots
-Add screenshots of the web UI here.
+Live preview:
+
+![Weather web app screenshot](https://image.thum.io/get/https://weather-forcast-boni.vercel.app/)
