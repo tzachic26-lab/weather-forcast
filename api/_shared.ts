@@ -23,6 +23,18 @@ export interface DailyForecast {
 }
 
 export interface ForecastResponse {
+  current_weather?: {
+    temperature?: number;
+    windspeed?: number;
+    time?: string;
+  };
+  hourly?: {
+    time?: string[];
+    relative_humidity_2m?: number[];
+    visibility?: number[];
+    apparent_temperature?: number[];
+    wind_speed_10m?: number[];
+  };
   daily?: DailyForecast;
   timezone?: string;
 }
