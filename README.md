@@ -7,6 +7,15 @@ Weather forecast per country and city for the coming days.
 - Web app with searchable country/city dropdowns and weekly forecast
 - Hebrew/English UI toggle with RTL support
 
+## UI functionality
+- Auto-populates your location when permissions are granted
+- Mobile-first responsive layout and touch-friendly controls
+- Language switcher with persisted preference and RTL support
+- Current conditions, hourly highlights, and multi-day outlook
+
+## Live app
+Running on Vercel: https://weather-forcast-boni.vercel.app/
+
 ## Quick start
 ```bash
 npm install
@@ -30,4 +39,4 @@ Example tool call (JSON-RPC):
 ## Screenshots
 Live preview:
 
-![Weather web app screenshot](https://image.thum.io/get/https://weather-forcast-boni.vercel.app/)
+![Weather web app screenshot](public/screenshot.png)
