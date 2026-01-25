@@ -333,6 +333,72 @@
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 14px;
       }
+      .forecast-table {
+        margin-top: 16px;
+        display: none;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      }
+      .forecast-table table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 100%;
+      }
+      .forecast-table th,
+      .forecast-table td {
+        padding: 10px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        font-size: 12px;
+      }
+      .forecast-table th {
+        background: #f1f5ff;
+        color: var(--muted);
+        font-weight: 600;
+        text-transform: none;
+      }
+      .forecast-table tbody tr {
+        background: white;
+      }
+      .forecast-table tbody tr:nth-child(odd) {
+        background: #f8fbff;
+      }
+      .forecast-table td {
+        color: #0f172a;
+      }
+      .forecast-cell-day {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-weight: 600;
+      }
+      .forecast-cell-day span {
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 500;
+      }
+      .forecast-cell-weather {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .forecast-cell-weather span {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .forecast-temp-main {
+        font-weight: 600;
+      }
+      .forecast-temp-sub {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      body[dir="rtl"] .forecast-table th,
+      body[dir="rtl"] .forecast-table td {
+        text-align: right;
+      }
       .forecast-card {
         background: var(--card);
         border-radius: 16px;
@@ -462,6 +528,12 @@
           flex-direction: column;
           align-items: flex-start;
         }
+        .forecast-grid {
+          display: none;
+        }
+        .forecast-table {
+          display: block;
+        }
       }
     </style>
   </head>
@@ -547,6 +619,7 @@
           <p id="forecast-subtitle">Weather outlook for your location.</p>
         </div>
         <div id="result" class="forecast-grid"></div>
+        <div id="forecast-table" class="forecast-table"></div>
       </section>
 
       <footer class="app-footer" id="footer-note">
@@ -585,6 +658,7 @@
       const forecastSection = document.getElementById("forecast-section");
       const forecastTitleEl = document.getElementById("forecast-title");
       const forecastSubtitleEl = document.getElementById("forecast-subtitle");
+      const forecastTableEl = document.getElementById("forecast-table");
       const brandTitleEl = document.getElementById("brand-title");
       const brandSubtitleEl = document.getElementById("brand-subtitle");
       const footerTitleEl = document.getElementById("footer-title");
@@ -1488,6 +1562,59 @@
           .join("");
       }
 
+      function buildForecastTable(daily) {
+        const headers = [
+          t("label_day"),
+          t("label_weather"),
+          t("label_temp_short"),
+          t("label_rain_short"),
+        ];
+        const rows = daily.time.slice(1, 8).map((date, offset) => {
+          const index = offset + 1;
+          const high = daily.temperature_2m_max?.[index];
+          const low = daily.temperature_2m_min?.[index];
+          const precip = daily.precipitation_probability_max?.[index];
+          const code = daily.weathercode?.[index];
+          const tempValue = `${formatValue(low, t("unit_celsius"))} / ${formatValue(
+            high,
+            t("unit_celsius"),
+          )}`;
+          return `
+            <tr>
+              <td>
+                <div class="forecast-cell-day">
+                  ${formatDayLabel(date)}
+                  <span>${formatDate(date)}</span>
+                </div>
+              </td>
+              <td>
+                <div class="forecast-cell-weather">
+                  ${weatherIcon(code)}
+                  <span>${translateWeatherCode(code)}</span>
+                </div>
+              </td>
+              <td>
+                <div class="forecast-temp-main">${tempValue}</div>
+              </td>
+              <td>${formatValue(precip, "%")}</td>
+            </tr>
+          `;
+        });
+
+        return `
+          <table>
+            <thead>
+              <tr>
+                ${headers.map((label) => `<th>${label}</th>`).join("")}
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.join("")}
+            </tbody>
+          </table>
+        `;
+      }
+
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
         statusEl.textContent = t("status_loading");
@@ -1522,6 +1649,7 @@
           forecastSubtitleEl.textContent =
             t("forecast_subtitle_for", { city: location.name, country: location.country });
           resultEl.innerHTML = buildForecastCards(data.daily);
+          forecastTableEl.innerHTML = buildForecastTable(data.daily);
           forecastSection.classList.remove("hidden");
         } catch (error) {
           console.error(error);
