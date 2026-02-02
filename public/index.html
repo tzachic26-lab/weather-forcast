@@ -152,6 +152,10 @@
         padding: 4px 10px;
         font-size: 12px;
         box-shadow: none;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
       .lang-tabs {
         display: inline-flex;
@@ -633,7 +637,7 @@
             <img id="auth-avatar" class="auth-avatar" alt="" referrerpolicy="no-referrer" />
             <span id="auth-avatar-fallback" class="auth-avatar-fallback"></span>
             <span id="auth-user" class="auth-user"></span>
-            <button id="auth-login" type="button" class="auth-button">Sign in</button>
+            <a id="auth-login" class="auth-button" href="/api/auth/google">Sign in</a>
             <button id="auth-logout" type="button" class="auth-button" hidden>Sign out</button>
           </div>
         </div>
