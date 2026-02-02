@@ -50,12 +50,28 @@
         margin: 0 auto;
         padding: 28px 20px 48px;
       }
+      body .auth-controls {
+        position: fixed;
+        top: 18px;
+        right: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 5;
+      }
+      @media (max-width: 720px) {
+        body .auth-controls {
+          top: 12px;
+          right: 12px;
+        }
+      }
       .app-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
         margin-bottom: 22px;
+        position: relative;
       }
       .brand {
         display: flex;
@@ -90,6 +106,52 @@
         align-items: center;
         gap: 12px;
         justify-content: flex-end;
+      }
+      .auth-controls {
+        position: fixed;
+      }
+      .auth-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid var(--border);
+        display: none;
+        background: #f1f5f9;
+        box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+      }
+      .auth-avatar-fallback {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: #1f2937;
+        background: #e2e8f0;
+        box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+      }
+      .auth-user {
+        font-size: 12px;
+        color: var(--muted);
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: none;
+      }
+      .auth-button {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        color: var(--text);
+        min-width: auto;
+        height: 28px;
+        padding: 4px 10px;
+        font-size: 12px;
+        box-shadow: none;
       }
       .lang-tabs {
         display: inline-flex;
@@ -567,6 +629,13 @@
               עב
             </button>
           </div>
+          <div class="auth-controls">
+            <img id="auth-avatar" class="auth-avatar" alt="" referrerpolicy="no-referrer" />
+            <span id="auth-avatar-fallback" class="auth-avatar-fallback"></span>
+            <span id="auth-user" class="auth-user"></span>
+            <button id="auth-login" type="button" class="auth-button">Sign in</button>
+            <button id="auth-logout" type="button" class="auth-button" hidden>Sign out</button>
+          </div>
         </div>
       </header>
 
@@ -678,6 +747,11 @@
       const footerPrivacyEl = document.getElementById("footer-privacy");
       const footerTermsEl = document.getElementById("footer-terms");
       const footerContactEl = document.getElementById("footer-contact");
+      const authAvatarEl = document.getElementById("auth-avatar");
+      const authAvatarFallbackEl = document.getElementById("auth-avatar-fallback");
+      const authUserEl = document.getElementById("auth-user");
+      const authLoginButton = document.getElementById("auth-login");
+      const authLogoutButton = document.getElementById("auth-logout");
       const langEnButton = document.getElementById("lang-en");
       const langHeButton = document.getElementById("lang-he");
       const countrySearch = document.getElementById("country-search");
@@ -1010,6 +1084,8 @@
         footerTermsEl.textContent = t("footer_terms");
         footerContactEl.textContent = t("footer_contact");
         forecastTitleEl.textContent = t("forecast_title");
+        authLoginButton.textContent = t("auth_login");
+        authLogoutButton.textContent = t("auth_logout");
         langEnButton.classList.toggle("active", !isHebrew);
         langHeButton.classList.toggle("active", isHebrew);
         langEnButton.setAttribute("aria-selected", String(!isHebrew));
@@ -1025,6 +1101,52 @@
         const key = String(code);
         const map = labels.weather_codes || {};
         return map[key] || t("unknown");
+      }
+
+      function showAvatarFallback(text) {
+        authAvatarEl.removeAttribute("src");
+        authAvatarEl.alt = "";
+        authAvatarEl.style.display = "none";
+        authAvatarFallbackEl.textContent = text
+          ? text.trim().slice(0, 1).toUpperCase()
+          : "U";
+        authAvatarFallbackEl.style.display = "inline-flex";
+      }
+
+      function setAuthState(user) {
+        if (user) {
+          authUserEl.textContent = user.displayName || user.email || t("auth_signed_in");
+          if (user.photo) {
+            authAvatarEl.src = user.photo;
+            authAvatarEl.alt = user.displayName || user.email || t("auth_signed_in");
+            authAvatarEl.style.display = "inline-block";
+            authAvatarFallbackEl.style.display = "none";
+            authAvatarFallbackEl.textContent = "";
+          } else {
+            showAvatarFallback(user.displayName || user.email);
+          }
+          authLoginButton.hidden = true;
+          authLogoutButton.hidden = false;
+        } else {
+          authUserEl.textContent = "";
+          authAvatarEl.removeAttribute("src");
+          authAvatarEl.alt = "";
+          authAvatarEl.style.display = "none";
+          authAvatarFallbackEl.textContent = "";
+          authAvatarFallbackEl.style.display = "none";
+          authLoginButton.hidden = false;
+          authLogoutButton.hidden = true;
+        }
+      }
+
+      async function loadAuthState() {
+        try {
+          const response = await fetch("/api/auth/me");
+          const data = await response.json();
+          setAuthState(data?.user ?? null);
+        } catch (error) {
+          setAuthState(null);
+        }
       }
 
       function weatherIcon(code) {
@@ -1295,6 +1417,24 @@
         switchLanguage("he");
       });
 
+      authAvatarEl.addEventListener("error", () => {
+        showAvatarFallback(authUserEl.textContent || "U");
+      });
+
+      authLoginButton.addEventListener("click", () => {
+        window.location.href = "/api/auth/google";
+      });
+
+      authLogoutButton.addEventListener("click", async () => {
+        try {
+          await fetch("/api/auth/logout", { method: "POST" });
+        } catch (error) {
+          console.warn("Unable to log out:", error);
+        } finally {
+          setAuthState(null);
+        }
+      });
+
       resetHero();
 
       countrySearch.addEventListener("input", async (event) => {
@@ -1412,6 +1552,7 @@
           }
         }
         applyLanguage();
+        await loadAuthState();
         await loadCountries();
         autoSubmitPending = true;
         applyLocationDefaults();

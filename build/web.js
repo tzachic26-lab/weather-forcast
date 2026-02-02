@@ -1,15 +1,57 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ override: true });
 import express from "express";
+import session from "express-session";
 import path from "path";
 import { fileURLToPath } from "url";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 const GEOCODING_BASE = "https://geocoding-api.open-meteo.com/v1/search";
 const FORECAST_BASE = "https://api.open-meteo.com/v1/forecast";
 const app = express();
 const port = Number(process.env.PORT) || 3000;
+const isProd = process.env.NODE_ENV === "production";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, "..", "public");
+app.use(session({
+    secret: process.env.SESSION_SECRET || "dev-session-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: isProd,
+    },
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.static(publicDir));
+const googleClientId = process.env.GOOGLE_CLIENT_ID || "";
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET || "";
+const googleCallbackUrl = process.env.GOOGLE_CALLBACK_URL || `http://localhost:${port}/api/auth/google/callback`;
+const googleConfigured = Boolean(googleClientId && googleClientSecret);
+passport.serializeUser((user, done) => {
+    done(null, user);
+});
+passport.deserializeUser((user, done) => {
+    done(null, user);
+});
+if (googleConfigured) {
+    passport.use(new GoogleStrategy({
+        clientID: googleClientId,
+        clientSecret: googleClientSecret,
+        callbackURL: googleCallbackUrl,
+    }, (_accessToken, _refreshToken, profile, done) => {
+        const user = {
+            id: profile.id,
+            displayName: profile.displayName || "",
+            email: profile.emails?.[0]?.value ?? null,
+            photo: profile.photos?.[0]?.value ?? null,
+        };
+        done(null, user);
+    }));
+}
 const countryCache = new Map();
 async function fetchJson(url) {
     try {
@@ -73,6 +115,36 @@ app.get("/api/countries", async (req, res) => {
         return res.status(502).json({ error: "Unable to load countries list." });
     }
     return res.json({ countries });
+});
+app.get("/api/auth/google", (req, res, next) => {
+    if (!googleConfigured) {
+        return res.status(501).json({ error: "Google SSO is not configured." });
+    }
+    return passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
+});
+app.get("/api/auth/google/callback", passport.authenticate("google", {
+    failureRedirect: "/",
+}), (req, res) => {
+    res.redirect("/");
+});
+app.get("/api/auth/me", (req, res) => {
+    const user = req.user ?? null;
+    res.json({ user });
+});
+app.post("/api/auth/logout", (req, res) => {
+    const logout = req.logout;
+    if (typeof logout !== "function") {
+        return res.status(501).json({ error: "Logout is not available." });
+    }
+    logout((error) => {
+        if (error) {
+            return res.status(500).json({ error: "Unable to log out." });
+        }
+        const session = req.session;
+        session?.destroy(() => {
+            res.json({ ok: true });
+        });
+    });
 });
 app.get("/api/countries/search", async (req, res) => {
     const lang = typeof req.query.lang === "string" ? req.query.lang : "en";
