@@ -157,6 +157,9 @@
         align-items: center;
         justify-content: center;
       }
+      .auth-controls [hidden] {
+        display: none !important;
+      }
       .lang-tabs {
         display: inline-flex;
         gap: 8px;
@@ -1556,6 +1559,7 @@
           }
         }
         applyLanguage();
+        setAuthState(null);
         await loadAuthState();
         await loadCountries();
         autoSubmitPending = true;
