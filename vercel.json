@@ -7,6 +7,10 @@
   "routes": [
     { "handle": "filesystem" },
     { "src": "/api/(.*)", "dest": "/api/index.js" },
+    {
+      "src": "/(.*\\.(?:css|js|png|jpg|jpeg|gif|svg|webp|ico|json|txt|woff|woff2))",
+      "dest": "/public/$1"
+    },
     { "src": "/(.*)", "dest": "/public/index.html" }
   ]
 }
