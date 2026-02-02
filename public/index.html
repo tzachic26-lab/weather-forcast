@@ -693,6 +693,8 @@
       let locationDenied = false;
       let autoSubmitPending = false;
       let labels = {};
+      const SESSION_KEY = "weatherPreferences";
+      const PERSISTED_STORAGE = window.localStorage;
 
       function getDefaultLanguage() {
         const locale = (navigator.language || "").toLowerCase();
@@ -726,6 +728,39 @@
             return loadLabels("en");
           }
           labels = {};
+        }
+      }
+
+      function readSessionDefaults() {
+        try {
+          const raw = PERSISTED_STORAGE.getItem(SESSION_KEY);
+          if (!raw) {
+            return null;
+          }
+          const data = JSON.parse(raw);
+          if (!data || typeof data !== "object") {
+            return null;
+          }
+          return {
+            lang: typeof data.lang === "string" ? data.lang : null,
+            countryCode: typeof data.countryCode === "string" ? data.countryCode : null,
+            countryName: typeof data.countryName === "string" ? data.countryName : null,
+            cityName: typeof data.cityName === "string" ? data.cityName : null,
+            admin1: typeof data.admin1 === "string" ? data.admin1 : null,
+          };
+        } catch (error) {
+          console.warn("Unable to read session defaults:", error);
+          return null;
+        }
+      }
+
+      function writeSessionDefaults(update) {
+        try {
+          const current = readSessionDefaults() || {};
+          const next = { ...current, ...update };
+          PERSISTED_STORAGE.setItem(SESSION_KEY, JSON.stringify(next));
+        } catch (error) {
+          console.warn("Unable to save session defaults:", error);
         }
       }
 
@@ -1336,11 +1371,29 @@
         locationDefaults = { ...rawLocationDefaults };
       }
       async function initApp() {
-        rawLocationDefaults = await getLocationDefaults();
-        if (rawLocationDefaults?.countryCode === "IL") {
-          selectedLanguage = "he";
+        const sessionDefaults = readSessionDefaults();
+        if (sessionDefaults?.lang) {
+          selectedLanguage = sessionDefaults.lang;
         } else {
-          selectedLanguage = getDefaultLanguage();
+          const detectedDefaults = await getLocationDefaults();
+          rawLocationDefaults = detectedDefaults;
+          if (rawLocationDefaults?.countryCode === "IL") {
+            selectedLanguage = "he";
+          } else {
+            selectedLanguage = getDefaultLanguage();
+          }
+        }
+        if (!rawLocationDefaults) {
+          rawLocationDefaults = sessionDefaults?.countryCode
+            ? {
+                countryCode: sessionDefaults.countryCode || "",
+                countryName: sessionDefaults.countryName || "",
+                cityName: sessionDefaults.cityName || "",
+                admin1: sessionDefaults.admin1 ?? null,
+                accuracy: null,
+                source: "session",
+              }
+            : await getLocationDefaults();
         }
         await loadLabels(selectedLanguage);
         applyLocalizedDefaults(selectedLanguage);
@@ -1662,6 +1715,13 @@
           resultEl.innerHTML = buildForecastCards(data.daily);
           forecastTableEl.innerHTML = buildForecastTable(data.daily);
           forecastSection.classList.remove("hidden");
+          writeSessionDefaults({
+            lang: selectedLanguage,
+            countryCode: location.country_code || selectedCountryCode,
+            countryName: location.country || "",
+            cityName: location.name || selectedCityName,
+            admin1: location.admin1 ?? "",
+          });
         } catch (error) {
           console.error(error);
           statusEl.textContent =
