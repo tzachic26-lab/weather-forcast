@@ -310,6 +310,9 @@ app.get("/api/forecast", async (req, res) => {
         daily: forecastData.daily,
     });
 });
-app.listen(port, () => {
-    console.log(`Weather web app running at http://localhost:${port}`);
-});
+if (!process.env.VERCEL) {
+    app.listen(port, () => {
+        console.log(`Weather web app running at http://localhost:${port}`);
+    });
+}
+export default app;
