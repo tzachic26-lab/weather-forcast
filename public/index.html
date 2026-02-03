@@ -57,12 +57,18 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        z-index: 5;
+        z-index: 50;
+        padding: 4px 6px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+        pointer-events: auto;
       }
       @media (max-width: 720px) {
         body .auth-controls {
-          top: 12px;
-          right: 12px;
+          top: 10px;
+          right: 10px;
         }
       }
       .app-header {
@@ -156,6 +162,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
       }
       .auth-controls [hidden] {
         display: none !important;
@@ -581,7 +588,7 @@
       }
       @media (max-width: 720px) {
         main.app {
-          padding: 20px 16px 36px;
+          padding: 56px 16px 36px;
         }
         .app-header {
           flex-direction: row;

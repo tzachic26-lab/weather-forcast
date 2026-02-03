@@ -62,6 +62,10 @@ const app = express();
 const port = Number(process.env.PORT) || 3000;
 const isProd = process.env.NODE_ENV === "production";
 
+if (process.env.VERCEL) {
+  app.set("trust proxy", 1);
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, "..", "public");
@@ -71,6 +75,7 @@ app.use(
     secret: process.env.SESSION_SECRET || "dev-session-secret",
     resave: false,
     saveUninitialized: false,
+    proxy: Boolean(process.env.VERCEL),
     cookie: {
       httpOnly: true,
       sameSite: "lax",
