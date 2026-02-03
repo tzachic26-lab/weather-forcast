@@ -773,6 +773,28 @@
       const citySearch = document.getElementById("city-search");
       const cityList = document.getElementById("city-list");
 
+      const IDLE_REFRESH_MS = 2 * 60 * 60 * 1000;
+      let idleRefreshTimer = null;
+
+      function scheduleIdleRefresh() {
+        if (idleRefreshTimer) {
+          clearTimeout(idleRefreshTimer);
+        }
+        idleRefreshTimer = setTimeout(() => {
+          window.location.reload();
+        }, IDLE_REFRESH_MS);
+      }
+
+      ["click", "keydown", "mousemove", "touchstart", "scroll"].forEach((eventName) => {
+        window.addEventListener(eventName, scheduleIdleRefresh, { passive: true });
+      });
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+          scheduleIdleRefresh();
+        }
+      });
+      scheduleIdleRefresh();
+
       let allCountries = [];
       let selectedCountryCode = "";
       let selectedCityName = "";
