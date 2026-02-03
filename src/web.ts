@@ -235,6 +235,10 @@ app.get("/api/auth/google", (req, res, next) => {
   return passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
 });
 
+app.get("/api/ping", (_req, res) => {
+  res.status(200).json({ ok: true, service: "api" });
+});
+
 app.get(
   "/api/auth/google/callback",
   passport.authenticate("google", {

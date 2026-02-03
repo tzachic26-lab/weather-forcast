@@ -28,7 +28,7 @@
   "footer_privacy": "Privacy Policy",
   "footer_terms": "Terms of Service",
   "footer_contact": "Contact",
-  "auth_login": "Sign in",
+  "auth_login": "Sign in with Google",
   "auth_logout": "Sign out",
   "auth_signed_in": "Signed in",
   "label_humidity": "💧 Humidity",
