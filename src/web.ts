@@ -232,6 +232,7 @@ app.get("/api/auth/google", (req, res, next) => {
   if (!googleConfigured) {
     return res.status(501).json({ error: "Google SSO is not configured." });
   }
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
   return passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
 });
 
@@ -245,6 +246,7 @@ app.get(
     failureRedirect: "/",
   }),
   (req, res) => {
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
     res.redirect("/");
   },
 );
